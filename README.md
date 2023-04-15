@@ -14,7 +14,7 @@ We first choose to fit a svm model with 0.97 accuracy.
 In order to improve the performance, then we train a random forest model and the accuracy is 0.98.
 
 ## Result files
-Two tab-delimited text files result/binary_2502.txt and data/multiclass_2502.txt are my submission. The training data (labeled activity information included) should be used to construct and test your ML algorithms. Apply your algorithm to the test data (containing only feature information) and predict the activity corresponding to each time window.
+Two tab-delimited text files result/binary_2502.txt and data/multiclass_2502.txt are my submission for task1 and task2. Two rmarkdown files result/task1.rmd and result/task2.rmd show how I construct and test the ML algorithms.
 
 ## Comment
 In fact, I also use the cross-validation to better estimate the model, however, it lower the accuracy.
