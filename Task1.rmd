@@ -1,0 +1,102 @@
+---
+title: 'Task1'
+output: html_document
+date: "2023-04-15"
+editor_options: 
+  chunk_output_type: inline
+---
+
+## Load necessary libraries
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(caret)
+library(randomForest)
+library(e1071)
+library(ggplot2)
+library(kernlab)
+library(ISLR)
+library(dplyr)
+library(nnet)
+```
+
+## Read train and test data
+
+```{r Read training and test data}
+train_data <- read.table("~/Desktop/bios626-mid1/bios626-main/data/training_data.txt", header=TRUE, quote="", comment.char="")
+test_data <- read.table("~/Desktop/bios626-mid1/bios626-main/data/test_data.txt", header=TRUE, quote="", comment.char="", stringsAsFactors=TRUE)
+```
+
+## Task 1: Classify activity of each time window into static(0) and dynamic(1)
+
+-   For this task, consider postural transitions as static (0).
+
+-   Using all given predictors/features F1...F561
+
+-   Methods: random forest
+
+-   Training data: data from subject != 2
+
+-   Testing data : data from subject = 2
+
+```{r preprocess the data}
+train_data$activity <- as.factor(ifelse(train_data$activity %in% 1:3, 1, 0)) # 1:dynamic and 0: static
+
+```
+
+## Split data into features and labels
+
+```{r}
+# Split the data into features and labels
+train_features <- train_data[, -(1:2)] # features from F1 to F561 from training_set
+train_labels <- train_data$activity
+test_features <- test_data[, -(1)] # features from F1 to F561 from testing_set
+dim(train_features)
+dim(test_features)
+```
+
+\+ In order the test the accuracy of algorithms, split the train_data into 2 parts
+
+```{r}
+true_data <- sample_n(train_data, 0.2*7767)
+true_labels <- true_data$activity
+true_features <- true_data[, -(1:2)]
+dim(true_features)
+
+left_data <- setdiff(train_data, true_data)
+left_labels <- left_data$activity
+left_features <- left_data[, -(1:2)]
+dim(left_data)
+
+```
+
+### Train the random forest model
+
+```{r}
+set.seed(123)
+model1 <- randomForest(x = left_features, y = left_labels, ntree = 500, importance = TRUE)
+```
+
+```{r}
+# Make predictions on the test dataset
+predictions <- predict(model1, true_features)
+head(predictions)
+```
+
+```{r}
+# Evaluate the model's accuracy
+accuracy <- sum(predictions == true_labels) / length(true_labels)
+cat("Accuracy on test dataset:", accuracy * 100, "%\n")
+```
+
+## Produce the result on test_data
+
+```{r}
+model <- randomForest(x = train_features, y = train_labels, ntree = 500, importance = TRUE)
+result <- predict(model, test_features)
+
+```
+
+```{r}
+write.table(result, "binary_2502.txt",row.names = F, col.names = F, quote = F)
+```
